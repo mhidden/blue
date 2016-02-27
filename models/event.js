@@ -27,7 +27,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    type: {
+    event_type: {
       type: DataTypes.ENUM('show', 'balada', 'teatro', 'esporte'),
       allowNull: false
     },
