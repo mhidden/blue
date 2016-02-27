@@ -1,4 +1,4 @@
-var data = {'cpf':'000.000.000-00', 'password':'password'}
+var data = utils.getUserData()
 
 function baseUserURI() {
 	return config.address + '/v1/users';

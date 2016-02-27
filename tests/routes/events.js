@@ -1,26 +1,3 @@
-function createFutureDate(days, startDate) {
-	date = new Date();
-	if (startDate) {
-		date = new Date(startDate);
-	}
-
-	date.setDate(date.getDate() + days)
-	return date;
-}
-
-function getEventData() {
-	var data = {
-		'name':'Show do RHCP', 
-		'description':'Esta é a descrição do show...',
-		'organizer':'Grupo RBS',
-		'date':createFutureDate(1, undefined).toISOString(),
-		'capacity':10,
-		'event_type':models.Event.rawAttributes.event_type.values[0],
-		'published':false
-	}	
-	return data;
-}
-
 function baseEventURI() {
 	return config.address + '/v1/events';
 }
@@ -39,19 +16,19 @@ function optionsGet() {
 
 function optionsPost() {
 	opt = baseOptions('POST');
-	opt['json'] = getEventData();
+	opt['json'] = utils.getEventData();
 	return opt;
 }
 
 function optionsPut() {
 	opt = baseOptions('PUT');
-	opt['json'] = getEventData();
+	opt['json'] = utils.getEventData();
 	return opt;
 }
 function differentEventData(data) {
 	for (var i in data) {
 		if (i == 'date') {
-			data[i] = createFutureDate(10, data[i]).toISOString();
+			data[i] = utils.createFutureDate(10, data[i]).toISOString();
 		} else if (i == 'event_type') {
 			data[i] = models.Event.rawAttributes.event_type.values[2];
 		} else if (i == 'published') {
@@ -65,7 +42,7 @@ function differentEventData(data) {
 	return data;
 }
 function testListWithFilter(test, field, value) {
-	data = getEventData();
+	data = utils.getEventData();
 	data[field] = value;
 	models.Event.create(data).then(function (firstCreated) {
 		otherData = differentEventData(data);
@@ -91,7 +68,7 @@ module.exports = {
 			optionsPost(),
 			function (error, response, body) {
 				test.equal(response.statusCode, 201);
-				models.Event.findAll({'name':getEventData()['name']}).then(function (events) {
+				models.Event.findAll({'name':utils.getEventData()['name']}).then(function (events) {
 					test.equal(events.length,1)
 					test.equal(events[0]['id'], body['id'])
 					test.done();
@@ -100,7 +77,7 @@ module.exports = {
 		);
 	},
 	testDeleteEvent: function (test) {
-		models.Event.create(getEventData()).then(function (eventCreated) {
+		models.Event.create(utils.getEventData()).then(function (eventCreated) {
 			options = baseOptions('DELETE')
 			options['uri'] = options['uri'] + '/' + eventCreated.id;
 			request(options, function (error, response, body) {
@@ -125,7 +102,7 @@ module.exports = {
 		);
 	},
 	testRetrieveEvent: function (test) {
-		models.Event.create(getEventData()).then(function (eventCreated) {
+		models.Event.create(utils.getEventData()).then(function (eventCreated) {
 			options = optionsGet();
 			options['uri'] = options['uri'] + '/' + eventCreated.id;
 			request(options, function (error, response, body) {
@@ -136,7 +113,7 @@ module.exports = {
 		});
 	},
 	testUpdateEvent: function (test) {
-		models.Event.create(getEventData()).then(function (eventCreated) {
+		models.Event.create(utils.getEventData()).then(function (eventCreated) {
 			options = optionsPut();
 			updatedData = differentEventData(options['json']);
 			options['json'] = updatedData;
@@ -153,8 +130,8 @@ module.exports = {
 		});
 	}, 
 	testListEvents: function (test) {
-		models.Event.create(getEventData()).then(function (event) {
-			var otherData = getEventData();
+		models.Event.create(utils.getEventData()).then(function (event) {
+			var otherData = utils.getEventData();
 			otherData['name'] = "Show do Luan Santana";
 			models.Event.create(otherData).then(function (event) {
 				request(optionsGet(), function (error, response, body) {
@@ -169,7 +146,7 @@ module.exports = {
 		testListWithFilter(test, 'name', 'a');
 	},
 	testListWithFilterDate: function (test) {
-		testListWithFilter(test, 'date', createFutureDate(3));
+		testListWithFilter(test, 'date', utils.createFutureDate(3));
 	},
 	testListWithFilterOrganizer: function (test) {
 		testListWithFilter(test, 'organizer', 'organizer123');
@@ -187,8 +164,8 @@ module.exports = {
 		testListWithFilter(test, 'published', true);
 	},
 	testTicketsLeft: function (test) {
-		models.User.create({'cpf':'000.000.000-00', 'password':'password'}).then(function (userCreated) {
-			models.Event.create(getEventData()).then(function (eventCreated) {
+		models.User.create(utils.getUserData()).then(function (userCreated) {
+			models.Event.create(utils.getEventData()).then(function (eventCreated) {
 				models.Ticket.create({event_id:eventCreated.id, user_id:userCreated.id}).then(function (ticket) {
 					options = optionsGet();
 					options['uri'] = options['uri'] + '/' + eventCreated.id;
