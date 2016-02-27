@@ -1,8 +1,17 @@
 {
 	"development": {
-		"logging":"",
 		"dialect": "sqlite",
   	"storage": "./db.development.sqlite",
+    "define": {
+        "timestamps": false
+		},
+		"salt": "mysalt",
+		"address":"http://localhost:3000"
+	},
+	"test": {
+		"logging":"",
+		"dialect": "sqlite",
+  	"storage": "./db.test.sqlite",
     "define": {
         "timestamps": false
 		},

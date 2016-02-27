@@ -21,7 +21,14 @@ module.exports = function(sequelize, DataTypes) {
     },
     date: {
       type: DataTypes.DATE,
-      allowNull: false
+      allowNull: false,
+      validate: {
+        inFuture: function (val) {
+          if (val < new Date()) {
+            throw new Error("Please choose date in future");
+          }
+        }
+      }
     },
     capacity: {
       type: DataTypes.INTEGER,
