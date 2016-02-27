@@ -145,7 +145,7 @@ module.exports = {
 				test.equal(response.statusCode, 200);
 				test.equal(eventCreated.id, body['id']);
 				updatedData['id'] = body['id'];
-				for (f in body) {
+				for (f in updatedData) {
 					test.equal(body[f], updatedData[f], f)
 				}
 				test.done();
@@ -153,10 +153,10 @@ module.exports = {
 		});
 	}, 
 	testListEvents: function (test) {
-		models.Event.create(getEventData()).then(function (user) {
+		models.Event.create(getEventData()).then(function (event) {
 			var otherData = getEventData();
 			otherData['name'] = "Show do Luan Santana";
-			models.Event.create(otherData).then(function (user) {
+			models.Event.create(otherData).then(function (event) {
 				request(optionsGet(), function (error, response, body) {
 					test.equal(response.statusCode, 200);
 					test.equal(body.length, 2);
@@ -186,9 +186,26 @@ module.exports = {
 	testListWithFilterPublished: function (test) {
 		testListWithFilter(test, 'published', true);
 	},
-
+	testTicketsLeft: function (test) {
+		models.User.create({'cpf':'000.000.000-00', 'password':'password'}).then(function (userCreated) {
+			models.Event.create(getEventData()).then(function (eventCreated) {
+				models.Ticket.create({event_id:eventCreated.id, user_id:userCreated.id}).then(function (ticket) {
+					options = optionsGet();
+					options['uri'] = options['uri'] + '/' + eventCreated.id;
+					request(options, function (error, response, body) {
+						test.equal(response.statusCode, 200);
+						test.equal(eventCreated.id, body['id']);
+						test.equal((eventCreated.capacity-1), body['tickets_left']);
+						test.done();
+					});
+				});
+			});	
+		});
+	},
 	tearDown: function (callback) {
+		models.User.destroy({where: {}}).then(function () {});
     models.Event.destroy({where: {}}).then(function () {});
+    models.Ticket.destroy({where: {}}).then(function () {});
     callback();
   }
 }

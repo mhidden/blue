@@ -1,30 +1,42 @@
-module.exports.Serialize = function Serialize(object) {
-	serializer = {
-		'User': ['id','cpf'],
-		'Event': ['id', 'name', 'description', 'organizer', 'date', 'capacity', 'event_type', 'published'],
-		'Ticket': ['id', 'event_id', 'user_id'],
-	}	
 
-	if (object instanceof Array) {
-		response = [];
-		for (o in object) {
-			obj = object[o];
-			serialized = {};
-			serializerFields = serializer[obj.type];
-			for (i in serializerFields) {
-				field = serializerFields[i];
-				serialized[field] = obj[field];
-			}
-			response.push(serialized);
+
+module.exports = {
+	getTicketsLeft: function (object) { 
+		if ('Tickets' in object) {
+			return (object.capacity - object.Tickets.length);
 		}
-		return response;
-	} else {
+		return 0;
+	},
+	serializeObject: function (object) {
 		serialized = {};
-		serializerFields = serializer[object.type];
+		serializerFields = this.serializer[object.type];
 		for (i in serializerFields) {
 			field = serializerFields[i]
-			serialized[field] = object[field];
+			if (typeof(field) == "string") {
+				serialized[field] = object[field];	
+			} else {
+				for (var k in field) {
+					serialized[k] = this[field[k]](object);	
+				}
+			}
 		}
 		return serialized;
-	}
+	},
+	serialize: function (object) {
+		if (object instanceof Array) {
+			response = [];
+			for (o in object) {
+				obj = object[o];
+				response.push(this.serializeObject(obj));
+			}
+			return response;
+		} else {
+			return this.serializeObject(object);
+		}	
+	},
+	serializer: {
+		'User': ['id','cpf'],
+		'Event': ['id', 'name', 'description', 'organizer', 'date', 'capacity', 'event_type', 'published', {'tickets_left':'getTicketsLeft'}],
+		'Ticket': ['id', 'event_id', 'user_id'],
+	},
 }

@@ -31,7 +31,7 @@ app.use(bodyParser.json());
 
 app.use(function (req, res, next) {
 	res.sendObject = function (object) {
-		res.json(serializer.Serialize(object));
+		res.json(serializer.serialize(object));
 	}
 	next();
 })

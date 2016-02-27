@@ -3,7 +3,8 @@
 		"dialect": "sqlite",
   	"storage": "./db.development.sqlite",
     "define": {
-        "timestamps": false
+        "timestamps": false,
+        "underscored": true
 		},
 		"salt": "mysalt",
 		"address":"http://localhost:3000"
@@ -13,7 +14,8 @@
 		"dialect": "sqlite",
   	"storage": "./db.test.sqlite",
     "define": {
-        "timestamps": false
+        "timestamps": false,
+        "underscored": true
 		},
 		"salt": "mysalt",
 		"address":"http://localhost:3000"
