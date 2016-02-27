@@ -11,6 +11,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     cpf: {
       type: DataTypes.STRING,
+      unique: true
     },
     password_hash: {
       type: DataTypes.STRING

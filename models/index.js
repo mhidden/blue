@@ -13,6 +13,10 @@ fs
   .forEach(function(file) {
     var model = sequelize.import(path.join(__dirname, file));
     db[model.name] = model;
+    if (db[model.name].options.getterMethods == undefined) {
+      db[model.name].options.getterMethods = {};
+    }
+    db[model.name].options.getterMethods.type = function () { return model.name };
   });
 
 Object.keys(db).forEach(function(modelName) {

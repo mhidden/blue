@@ -6,6 +6,7 @@
     "define": {
         "timestamps": false
 		},
-		"salt": "mysalt"
+		"salt": "mysalt",
+		"address":"http://localhost:3000"
 	}
 }
