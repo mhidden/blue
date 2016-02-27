@@ -1,9 +1,21 @@
 var data = {'cpf':'000.000.000-00', 'password':'password'}
 
+function baseUserURI() {
+	return config.address + '/v1/users';
+}
+
+function optionsPost() {
+	var options = {
+	  uri: baseUserURI(),
+	  method: 'POST',
+	  json: data
+	};	
+	return options;
+}
 
 function optionsGet() {
 	var options = {
-		uri: config.address + '/v1/users',
+		uri: baseUserURI(),
 	  method: 'GET',
 	  json: {}
 	};
@@ -13,14 +25,8 @@ function optionsGet() {
 
 module.exports = { 
 	testCreateUser: function (test) {
-		var options = {
-		  uri: config.address + '/v1/users',
-		  method: 'POST',
-		  json: data
-		};
-
 		request(
-			options,
+			optionsPost(),
 			function (error, response, body) {
 				test.equal(response.statusCode, 201);
 				models.User.findAll({'cpf':data['cpf']}).then(function (users) {
@@ -28,6 +34,21 @@ module.exports = {
 					test.equal(users[0]['id'], body['id'])
 					test.done();
 				});
+			}
+		);
+	},
+	testCreateNotUnique: function (test) {
+		request(
+			optionsPost(),
+			function (error, response, body) {
+				request(
+					optionsPost(),
+					function (error, response, body) {
+						test.equal(response.statusCode, 400);
+						test.equal(body['cpf'], 'cpf must be unique');
+						test.done();
+					}
+				);
 			}
 		);
 	},
