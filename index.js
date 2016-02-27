@@ -10,7 +10,7 @@ var serializer = require('./serializer')
 errorHandler = function (err, req, res) {
 	if (err.name.indexOf('Sequelize') !== -1) {
 		errors = {}
-		console.log(err.errors);
+		// console.log(err.errors);
 		for (e in err.errors) {
 			var error = err.errors[e];
 			field = error['path'];
@@ -37,10 +37,6 @@ app.use(function (req, res, next) {
 })
 
 app.use(routes);
-
-app.use(function (err, req, res, next) {
-	console.log(err, req,res, next);
-});
 
 app.server = app.listen(3000, function () {
   console.log('Example app listening on port 3000!');

@@ -2,21 +2,37 @@ var express = require('express');
 var router  = express.Router();
 
 router.get('/', function (req, res) {
-	models.Event.findAll().then(function (events) {
+	models.Event.findAll({where: req.query}).then(function (events) {
 		res.sendObject(events);
-	}).catch(function (err) { errorHandler(err, req, res); });;
+	}).catch(function (err) { errorHandler(err, req, res); });
 });
 
 router.post('/', function (req, res) {
-	models.Event.create(req.body).then(function (event_created) {
-		res.status(201).sendObject(event_created);
+	models.Event.create(req.body).then(function (eventCreated) {
+		res.status(201).sendObject(eventCreated);
 	}).catch(function (err) { errorHandler(err, req, res); });
 });
 
 router.get('/:id', function (req, res) {
-	models.Event.findOne({where: {id: req.params.id } }).then(function (event_retrieved) {
-		res.sendObject(event_retrieved);
-	}).catch(function (err) { errorHandler(err, req, res); });;
-})
+	models.Event.findOne({where: {id: req.params.id } }).then(function (eventRetrieved) {
+		res.sendObject(eventRetrieved);
+	}).catch(function (err) { errorHandler(err, req, res); });
+});
+
+router.put('/:id', function (req, res) {
+	models.Event.findOne({where: {id: req.params.id } }).then(function (eventRetrieved) {
+		eventRetrieved.update(req.body).then(function (event_updated) {
+			res.sendObject(event_updated);	
+		}).catch(function (err) { errorHandler(err, req, res); });
+	}).catch(function (err) { errorHandler(err, req, res); });
+});
+
+router.delete('/:id', function (req, res) {
+	models.Event.findOne({where: {id: req.params.id } }).then(function (eventRetrieved) {
+		eventRetrieved.destroy().then(function () {
+			res.sendObject({});	
+		}).catch(function (err) { errorHandler(err, req, res); });
+	}).catch(function (err) { errorHandler(err, req, res); });
+});
 
 module.exports = router;

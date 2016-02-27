@@ -41,7 +41,14 @@ module.exports = function(sequelize, DataTypes) {
     published: { 
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: false
+      defaultValue: false,
+      validate: {
+        canPublish: function (val) {
+          if (new Date() > this.date) {
+            throw new Error("You cannot publish past events");
+          }
+        }
+      }
     }
   }, {
     classMethods: {
