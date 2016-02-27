@@ -1,0 +1,11 @@
+{
+	"development": {
+		"logging":"",
+		"dialect": "sqlite",
+  	"storage": "./db.development.sqlite",
+    "define": {
+        "timestamps": false
+		},
+		"salt": "mysalt"
+	}
+}
