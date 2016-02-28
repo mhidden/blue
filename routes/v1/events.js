@@ -2,6 +2,12 @@ var express = require('express');
 var router  = express.Router();
 
 router.get('/', function (req, res) {
+	filters = req.query;
+	if (!filters['date']) {
+		filters['date'] = new Date();
+	}
+	filters['date'] = {$gte: filters['date']};
+	console.log(filters);
 	models.Event.findAll({ where: req.query, include: [{model: models.Ticket}] }).then(function (events) {
 		res.sendObject(events);
 	});

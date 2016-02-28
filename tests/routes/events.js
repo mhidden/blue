@@ -45,7 +45,7 @@ function differentEventData(data) {
 	return data;
 }
 
-function testListWithFilter(test, field, value) {
+function testListWithFilter(test, field, value, quantity) {
 	data = utils.getEventData();
 	data[field] = value;
 	models.Event.create(data).then(function (firstCreated) {
@@ -59,7 +59,7 @@ function testListWithFilter(test, field, value) {
 			}
 			request(options, function (error, response, body) {
 				test.equal(response.statusCode, 200);
-				test.equal(body.length, 1);
+				test.equal(body.length, quantity);
 				test.done();
 			});	
 		});
@@ -205,25 +205,25 @@ module.exports = {
 		});
 	},
 	testListWithFilterName: function (test) {
-		testListWithFilter(test, 'name', 'a');
+		testListWithFilter(test, 'name', 'a', 1);
 	},
 	testListWithFilterDate: function (test) {
-		testListWithFilter(test, 'date', utils.createFutureDate(3));
+		testListWithFilter(test, 'date', utils.createFutureDate(3), 2);
 	},
 	testListWithFilterOrganizer: function (test) {
-		testListWithFilter(test, 'organizer', 'organizer123');
+		testListWithFilter(test, 'organizer', 'organizer123', 1);
 	},
 	testListWithFilterDescription: function (test) {
-		testListWithFilter(test, 'description', 'a');
+		testListWithFilter(test, 'description', 'a', 1);
 	},
 	testListWithFilterEventType: function (test) {
-		testListWithFilter(test, 'event_type', models.Event.rawAttributes.event_type.values[1]);
+		testListWithFilter(test, 'event_type', models.Event.rawAttributes.event_type.values[1], 1);
 	},
 	testListWithFilterCapacity: function (test) {
-		testListWithFilter(test, 'capacity', 666);
+		testListWithFilter(test, 'capacity', 666, 1);
 	},
 	testListWithFilterPublished: function (test) {
-		testListWithFilter(test, 'published', true);
+		testListWithFilter(test, 'published', true, 1);
 	},
 	testTicketsLeft: function (test) {
 		models.User.create(utils.getUserData()).then(function (userCreated) {
