@@ -123,7 +123,7 @@ module.exports = {
 				test.equal(eventCreated.id, body['id']);
 				updatedData['id'] = body['id'];
 				for (f in updatedData) {
-					test.equal(body[f], updatedData[f], f)
+					test.equal(body[f], updatedData[f], f);
 				}
 				test.done();
 			});
