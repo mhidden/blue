@@ -30,8 +30,24 @@ module.exports = {
 			function (error, response, body) {
 				test.equal(response.statusCode, 201);
 				models.User.findAll({'cpf':data['cpf']}).then(function (users) {
-					test.equal(users.length,1)
-					test.equal(users[0]['id'], body['id'])
+					test.equal(users.length,1);
+					test.equal(users[0]['id'], body['id']);
+					test.done();
+				});
+			}
+		);
+	},
+	testCreateAdmin: function (test) {
+		options = optionsPost();
+		options['json']['admin'] = true;
+		request(
+			options,
+			function (error, response, body) {
+				test.equal(response.statusCode, 201);
+				models.User.findAll({'cpf':data['cpf']}).then(function (users) {
+					test.equal(users.length,1);
+					test.equal(users[0].admin, false);
+					test.equal(users[0]['id'], body['id']);
 					test.done();
 				});
 			}

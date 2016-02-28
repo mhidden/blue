@@ -16,7 +16,7 @@ utils = {
 			'date':utils.createFutureDate(1, undefined).toISOString(),
 			'capacity':10,
 			'event_type':models.Event.rawAttributes.event_type.values[0],
-			'published':false
+			'published':true
 		}	
 		return data;
 	},

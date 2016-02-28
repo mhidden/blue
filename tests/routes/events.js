@@ -1,27 +1,30 @@
 function baseEventURI() {
 	return config.address + '/v1/events';
 }
-function baseOptions(type) {
+function baseOptions(type, admin) {
 	var options = {
 		uri: baseEventURI(),
 	  method: type,
 	  json: {}
 	};
+	if (admin) {
+		options['headers'] = { "Authorization":"Token: " + admin.token };
+	}
 	return options;
 }
 
-function optionsGet() {
-	return baseOptions('GET');
+function optionsGet(admin) {
+	return baseOptions('GET', admin);
 }
 
-function optionsPost() {
-	opt = baseOptions('POST');
+function optionsPost(admin) {
+	opt = baseOptions('POST', admin);
 	opt['json'] = utils.getEventData();
 	return opt;
 }
 
-function optionsPut() {
-	opt = baseOptions('PUT');
+function optionsPut(admin) {
+	opt = baseOptions('PUT', admin);
 	opt['json'] = utils.getEventData();
 	return opt;
 }
@@ -41,6 +44,7 @@ function differentEventData(data) {
 	}
 	return data;
 }
+
 function testListWithFilter(test, field, value) {
 	data = utils.getEventData();
 	data[field] = value;
@@ -63,9 +67,18 @@ function testListWithFilter(test, field, value) {
 }
 
 module.exports = { 
-	testCreateEvent: function (test) {
+	// TODO: Refactor admins/not admins methods (almost the same);
+	setUp: function (callback) {
+		var self = this;
+		userData = {cpf:'admin-user', password:'admin-password', admin:true};
+		models.User.create(userData).then(function (userCreated) {
+			self.adminUser = userCreated;
+			callback();
+		});
+	},
+	testCreateEventAdmin: function (test) {
 		request(
-			optionsPost(),
+			optionsPost(this.adminUser),
 			function (error, response, body) {
 				test.equal(response.statusCode, 201);
 				models.Event.findAll({'name':utils.getEventData()['name']}).then(function (events) {
@@ -76,9 +89,19 @@ module.exports = {
 			}
 		);
 	},
-	testDeleteEvent: function (test) {
+	testCreateEventNotAdmin: function (test) {
+		request(
+			optionsPost(),
+			function (error, response, body) {
+				test.equal(response.statusCode, 403);
+				test.done();
+			}
+		);
+	},
+	testDeleteEventAdmin: function (test) {
+		var self = this;
 		models.Event.create(utils.getEventData()).then(function (eventCreated) {
-			options = baseOptions('DELETE')
+			options = baseOptions('DELETE', self.adminUser)
 			options['uri'] = options['uri'] + '/' + eventCreated.id;
 			request(options, function (error, response, body) {
 				models.Event.findAll().then(function (events) {
@@ -89,14 +112,39 @@ module.exports = {
 			});
 		});
 	},
-	testCreatePastEvent: function (test) {
-		dataPast = optionsPost();
+	testDeleteEventNotAdmin: function (test) {
+		var self = this;
+		models.Event.create(utils.getEventData()).then(function (eventCreated) {
+			options = baseOptions('DELETE')
+			options['uri'] = options['uri'] + '/' + eventCreated.id;
+			request(options, function (error, response, body) {
+				models.Event.findAll().then(function (events) {
+					test.equal(events.length, 1);
+					test.equal(response.statusCode,403);
+					test.done();	
+				});
+			});
+		});
+	},
+	testCreatePastEventAdmin: function (test) {
+		dataPast = optionsPost(this.adminUser);
 		dataPast['json']['date'] = new Date('2015-10-10').toISOString();
 		request(
 			dataPast,
 			function (error, response, body) {
 				test.equal(response.statusCode, 400);
 				test.equal(body['date'], 'Please choose date in future');
+				test.done();
+			}
+		);
+	},
+	testCreatePastEventNotAdmin: function (test) {
+		dataPast = optionsPost();
+		dataPast['json']['date'] = new Date('2015-10-10').toISOString();
+		request(
+			dataPast,
+			function (error, response, body) {
+				test.equal(response.statusCode, 403);
 				test.done();
 			}
 		);
@@ -112,9 +160,10 @@ module.exports = {
 			});
 		});
 	},
-	testUpdateEvent: function (test) {
+	testUpdateEventAdmin: function (test) {
+		var self = this;
 		models.Event.create(utils.getEventData()).then(function (eventCreated) {
-			options = optionsPut();
+			options = optionsPut(self.adminUser);
 			updatedData = differentEventData(options['json']);
 			options['json'] = updatedData;
 			options['uri'] = options['uri'] + '/' + eventCreated.id;
@@ -125,6 +174,19 @@ module.exports = {
 				for (f in updatedData) {
 					test.equal(body[f], updatedData[f], f);
 				}
+				test.done();
+			});
+		});
+	},
+	testUpdateEventNotAdmin: function (test) {
+		var self = this;
+		models.Event.create(utils.getEventData()).then(function (eventCreated) {
+			options = optionsPut();
+			updatedData = differentEventData(options['json']);
+			options['json'] = updatedData;
+			options['uri'] = options['uri'] + '/' + eventCreated.id;
+			request(options, function (error, response, body) {
+				test.equal(response.statusCode, 403);
 				test.done();
 			});
 		});

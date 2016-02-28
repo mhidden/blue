@@ -1,6 +1,10 @@
-
-
-module.exports = {
+serializer = {
+	middleware: function (req, res, next) {
+		res.sendObject = function (object) {
+			res.json(serializer.serialize(object));
+		}
+		next();
+	},
 	getTicketsLeft: function (object) { 
 		if ('Tickets' in object) {
 			return (object.capacity - object.Tickets.length);
@@ -40,3 +44,5 @@ module.exports = {
 		'Ticket': ['id', 'event_id', 'user_id'],
 	},
 }
+
+module.exports = serializer

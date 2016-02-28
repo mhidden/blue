@@ -1,5 +1,3 @@
-exports = require('./base')
-
 function baseUserURI() {
 	return config.address + '/v1/tickets';
 }

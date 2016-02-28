@@ -8,7 +8,9 @@ router.get('/', function (req, res) {
 });
 
 router.post('/', function (req, res) {
-	models.User.create(req.body).then(function (user) {
+	createData = req.body;
+	createData['admin'] = false;
+	models.User.create(createData).then(function (user) {
 		res.status(201).sendObject(user);
 	}).catch(function (err) { errorHandler(err, req, res); });
 });
