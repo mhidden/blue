@@ -18,5 +18,14 @@ function adminOnly(req, res, next) {
 	}
 }
 
+function registeredOnly(req, res, next) {
+	if (req.user && req.user) {
+		next();	
+	} else {
+		res.status(401).send();
+	}	
+}
+
 module.exports.middleware = middleware;
 module.exports.adminOnly = adminOnly;
+module.exports.registeredOnly = registeredOnly;

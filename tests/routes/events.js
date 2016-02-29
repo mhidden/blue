@@ -208,7 +208,7 @@ module.exports = {
 		testListWithFilter(test, 'name', 'a', 1);
 	},
 	testListWithFilterDate: function (test) {
-		testListWithFilter(test, 'date', utils.createFutureDate(3), 2);
+		testListWithFilter(test, 'date', utils.createFutureDate(3), 1);
 	},
 	testListWithFilterOrganizer: function (test) {
 		testListWithFilter(test, 'organizer', 'organizer123', 1);

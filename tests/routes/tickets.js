@@ -2,12 +2,15 @@ function baseUserURI() {
 	return config.address + '/v1/tickets';
 }
 
-function optionsPost() {
+function optionsPost(logged) {
 	var options = {
 	  uri: baseUserURI(),
 	  method: 'POST',
-	  json: data
+	  json: data,
 	};	
+	if (logged) {
+		options['headers'] = { "Authorization":"Token: " + logged.token };
+	}
 	return options;
 }
 
@@ -22,9 +25,21 @@ module.exports =  {
 			});
 		});
 	},
-	testCreateTicket: function (test) {
+	testCreateTicketUnloged: function (test) {
 		ticketData = {event_id:this.eventCreated.id, user_id:this.userCreated.id};
 		options = optionsPost();
+		options['json'] = ticketData;
+		request(
+			options,
+			function (error, response, body) {
+				test.equal(response.statusCode, 401);
+				test.done();
+			}
+		);
+	},
+	testCreateTicket: function (test) {
+		ticketData = {event_id:this.eventCreated.id, user_id:this.userCreated.id};
+		options = optionsPost(this.userCreated);
 		options['json'] = ticketData;
 		request(
 			options,
@@ -39,9 +54,10 @@ module.exports =  {
 		);
 	},
 	testCreateTicketExistent: function (test) {
+		var self = this;
 		ticketData = {event_id: this.eventCreated.id, user_id: this.userCreated.id};
 		models.Ticket.create(ticketData).then(function (ticketCreated) {
-			options = optionsPost();
+			options = optionsPost(self.userCreated);
 			options['json'] = ticketData;
 			request(
 				options,
@@ -68,7 +84,7 @@ module.exports =  {
 				user_data['cpf'] = user_data['cpf'] + 'different';
 				models.User.create(user_data).then(function (userCreated) {
 					ticketData.user_id = userCreated.id;
-					options = optionsPost();
+					options = optionsPost(self.userCreated);
 					options['json'] = ticketData;
 					request(
 						options,
@@ -82,6 +98,26 @@ module.exports =  {
 					);
 				});
 			});
+		});
+	},
+	testCreateTicketOtherUser: function (test) {
+		var self = this;
+		user_data = utils.getUserData();
+		user_data['cpf'] = user_data['cpf'] + 'different';
+		models.User.create(user_data).then(function (userCreated) {
+			ticketData.user_id = userCreated.id;
+			options = optionsPost(self.userCreated);
+			options['json'] = ticketData;
+			request(
+				options,
+				function (error, response, body) {
+					test.equal(response.statusCode, 403);
+					models.Ticket.findAll({where: {event_id:self.eventCreated.id}}).then(function (tickets) {
+						test.equal(tickets.length,0)
+						test.done();
+					});
+				}
+			);
 		});
 	},
 	tearDown: function (callback) {

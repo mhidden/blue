@@ -11,7 +11,7 @@ router.post('/', function (req, res) {
 	createData = req.body;
 	createData['admin'] = false;
 	models.User.create(createData).then(function (user) {
-		res.status(201).sendObject(user);
+		res.status(201).send(user);
 	}).catch(function (err) { errorHandler(err, req, res); });
 });
 

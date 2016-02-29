@@ -7,7 +7,9 @@ router.get('/', function (req, res) {
 		filters['date'] = new Date();
 	}
 	filters['date'] = {$gte: filters['date']};
-	console.log(filters);
+	if (!req.user) {
+		filters['published'] = true;
+	}
 	models.Event.findAll({ where: req.query, include: [{model: models.Ticket}] }).then(function (events) {
 		res.sendObject(events);
 	});
@@ -20,8 +22,17 @@ router.post('/', authentication.adminOnly, function (req, res) {
 });
 
 router.get('/:id', function (req, res) {
-	models.Event.findOne({where: {id: req.params.id }, include: [{model: models.Ticket}] }).then(function (eventRetrieved) {
-		res.sendObject(eventRetrieved);
+	filters = {id: req.params.id }
+	if (!req.user) {
+		filters['published'] = true;
+	}
+	models.Event.findOne({where: filters, include: [{model: models.Ticket}] }).then(function (eventRetrieved) {
+		if (eventRetrieved, eventRetrieved) {
+			res.sendObject(eventRetrieved);	
+		} else {
+			res.status(404).send();
+		}
+		
 	}).catch(function (err) { errorHandler(err, req, res); });
 });
 
